@@ -36,6 +36,9 @@
     <ClCompile Include="SIB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="REX.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Disassembler.h">
@@ -54,6 +57,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SIB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="REX.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Basic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

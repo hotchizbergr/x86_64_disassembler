@@ -14,13 +14,13 @@ public:
 	// Method
 	//
 	void Run(LPBYTE lpFile, DWORD dwCSraw, DWORD dwCSsize);
+	bool Is64Bit() const;
 
 	//
 	// Member
 	//
-	void (Disassembler::*m_ih[INSTRUCTION::COUNT])(Instruction&, DWORD);	// instruction handler
-	void (*m_oi[0xFF+1])(DWORD, Disassembler*, Instruction*);	// opcode interpreter
-	void (*m_mi[0xFF+1])(BYTE, Disassembler*, Instruction*);	// modr/m interpreter
+	void (*m_oi[0xFF+1])(DWORD, Disassembler*, Instruction*);	// prefix/opcode interpreter
+	void (*m_mi[0xFF+1])(BYTE,	Disassembler*, Instruction*);	// modr/m interpreter
 	void (*m_si[0xFF+1])(DWORD, Disassembler*, Instruction*);	// sib interpreter
 
 private:
@@ -48,12 +48,16 @@ private:
 	DWORD	m_dwCSsize;
 
 	std::vector<Instruction> m_InstList;
-	std::bitset<8>	m_Parse;
 	int				m_nBytes;
 
 	friend class Opcode;
 	friend class ModRM;
 };
+
+inline bool Disassembler::Is64Bit() const
+{
+	return m_wMachine == IMAGE_FILE_MACHINE_AMD64;
+}
 
 inline BYTE Disassembler::ReadByte()
 {

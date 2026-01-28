@@ -1,135 +1,55 @@
 #pragma once
 
 #include <Windows.h>
+#include <WinDNS.h>
 #include <string>
 #include <map>
+#include "REX.h"
 #include "Opcode.h"
-
-enum class MNEMONIC
-{
-	NON = -1,
-	MOV,
-	ADD,
-	SUB,
-	INC,
-	DEC,
-	XOR,
-	CMP,
-	JMP,
-	JNE,
-	TST
-};
-
-enum class REGISTER
-{
-	NON = -1,
-	AL,
-	AH,
-	BL,
-	BH,
-	CL,
-	CH,
-	DL,
-	DH,
-	AX,
-	BX,
-	CX,
-	DX,
-	SI,
-	DI,
-	EAX,
-	EBX,
-	ECX,
-	EDX,
-	RAX,
-	RBX,
-	RCX,
-	RDX,
-	ESI,
-	EDI,
-	RSI,
-	RDI,
-	EBP,
-	ESP,
-	RBP,
-	RSP
-};
-
-enum INSTRUCTION
-{
-	PREFIX,
-	OPCODE,
-	MODRM,
-	SIB,
-	DISPLACEMENT,
-	IMMEDIATE,
-	COUNT
-};
+#include "ModRM.h"
+#include "SIB.h"
+#include "Basic.h"
 
 class Instruction
 {
 public:
 	Instruction();
+	//
+	// Method
+	//
+	static bool IsPrefix(BYTE);
 
-	MNEMONIC GetMnemonic();
-	REGISTER GetOperand1();
-	REGISTER GetOperand2();
-
-	std::string GetMnemonicName();
-	std::string GetOperand1Name();
-	std::string GetOperand2Name();
-
-	int			m_dwSize;
+	//
+	// Member
+	//
+	int		m_Size;
 
 private:
-	BYTE		m_cPrefix;
-	DWORD		m_dwOpcode;
-	BYTE		m_cModRM;
-	BYTE		m_cSIB;
+	//
+	// Member
+	//
+	BYTE	m_Prefix;
+	REX		m_Rex;
+	DWORD	m_Opcode;
+	ModRM	m_ModRM;
+	SIB		m_SIB;
 
+	bool	m_pfx66;
+	bool	m_pfx67;
+	bool	m_pfxF0;
+	bool	m_pfxF2;
+	bool	m_pfxF3;
+
+	SEGMENT		m_SegOverride;
 	MNEMONIC	m_Mnemonic;
-	REGISTER	m_Operand1;
-	REGISTER	m_Operand2;
-	BOOL		m_bIsDisplacementValid;
-	DWORD		m_dwDisplacement;
-	BOOL		m_bIsImmediateValid;
-	DWORD		m_dwImmediate;
+	QWORD		m_Operand1;
+	QWORD		m_Operand2;
+	QWORD		m_Displacement;
+	QWORD		m_Immediate;
 
 	//DWORD		m_dwSize;
-
-	std::map<MNEMONIC, std::string> m_MnemonicMap;
-	std::map<REGISTER, std::string> m_OperandMap;
+	//std::map<MNEMONIC, std::string> m_MnemonicMap;
 
 	friend class Opcode;
 	friend class ModRM;
 };
-
-inline MNEMONIC Instruction::GetMnemonic()
-{
-	return m_Mnemonic;
-}
-
-inline REGISTER Instruction::GetOperand1()
-{
-	return m_Operand1;
-}
-
-inline REGISTER Instruction::GetOperand2()
-{
-	return m_Operand2;
-}
-
-inline std::string Instruction::GetMnemonicName()
-{
-	return m_MnemonicMap[m_Mnemonic];
-}
-
-inline std::string Instruction::GetOperand1Name()
-{
-	return m_OperandMap[m_Operand1];
-}
-
-inline std::string Instruction::GetOperand2Name()
-{
-	return m_OperandMap[m_Operand2];
-}

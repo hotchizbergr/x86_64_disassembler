@@ -128,14 +128,17 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="ModRM.cpp" />
     <ClCompile Include="Opcode.cpp" />
+    <ClCompile Include="REX.cpp" />
     <ClCompile Include="SIB.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Basic.h" />
     <ClInclude Include="Disassembler.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="ModRM.h" />
     <ClInclude Include="Opcode.h" />
+    <ClInclude Include="REX.h" />
     <ClInclude Include="SIB.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>

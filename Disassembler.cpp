@@ -16,45 +16,43 @@ void Disassembler::Run(LPBYTE lpFile, DWORD dwCSraw, DWORD dwCSsize)
 	m_dwCSsize	= dwCSsize;
 	m_dwCursor	= 0;
 
-	m_Parse = std::bitset<8>(0);
-
-	while (m_dwCursor <= m_dwCSsize)
+	while (m_dwCursor <= m_dwCSsize) {
 		Disassemble();
+		//Print();
+	}
 }
 
 void Disassembler::Disassemble()
 {
-	m_Parse.set(PREFIX, true);
 	m_nBytes = 1;
 
 	Instruction inst;
+	DWORD readBytes;
 
-	// 1. legacy prefix
+	// 1. prefixes (legacy prefixes, rex)
+	while (1) {
+		readBytes = ReadBytes(m_nBytes);
+		if (!Instruction::IsPrefix(readBytes))
+			break;
+		m_oi[readBytes](readBytes, this, &inst);
+	}
 
-	// 2. rex prefix
+	// 2. opcode
+	m_oi[readBytes](readBytes, this, &inst);
 
-	// 3. opcode
+	// 3. modr/m
+	//readBytes = ReadBytes(m_nBytes);
+	// do something
 
-	// 4. modr/m
+	// 4. sib
+	//readBytes = ReadBytes(m_nBytes);
+	// do something
 
-	// 5. sib
+	// 5. displacement
+	//readBytes = ReadBytes(m_nBytes);
 
-	// 6. displacement
-
-	// 7. immediate
-
-	//while (m_Parse.any()) {
-	//	Instruction inst;
-	//	DWORD dwStart = m_dwCursor, bytes = ReadBytes(m_nBytes);
-	//	for (int i = PREFIX; i <= IMMEDIATE; ++i) {
-	//		if (!m_Parse.test(i) || m_ih[i] == nullptr)
-	//			continue;
-	//		(this->*m_ih[i])(inst, ReadBytes(m_nBytes));
-	//		inst.m_dwSize += m_nBytes;
-	//		m_Parse.set(i, false);
-	//	}
-	//	PrintInstruction(inst, dwStart);
-	//}
+	// 6. immediate
+	//readBytes = ReadBytes(m_nBytes);
 }
 
 DWORD Disassembler::ReadBytes(int n)
@@ -78,30 +76,16 @@ void Disassembler::PrintInstruction(Instruction& inst, DWORD dwStart)
 		std::setw(16) << static_cast<unsigned>(dwStart) << '\t';
 
 	// 2. print instruction
-	for (int i = 0; i < inst.m_dwSize; ++i) {
+	for (int i = 0; i < inst.m_Size; ++i) {
 		std::cout << std::uppercase << std::hex << std::setfill('0') <<
 			std::setw(2) << static_cast<unsigned>(m_lpFile[i]);
 	}
 	std::cout << '\t';
 
 	// 3. print mnemonic
-	std::cout << inst.GetMnemonicName();
-	auto op1 = inst.GetOperand1();
-	if (inst.GetOperand1() != REGISTER::NON)
-		std::cout << ' ' << inst.GetOperand1Name();
-	if (inst.GetOperand2() != REGISTER::NON)
-		std::cout << ", " << inst.GetOperand2Name();
-	std::cout << '\n';
 }
 
-Disassembler::Disassembler() :
-	m_ih {
-		nullptr,
-		&Disassembler::HandlePrefix,
-		&Disassembler::HandleOpcode,
-		&Disassembler::HandleModRM,
-		&Disassembler::HandleSIB
-	}
+Disassembler::Disassembler()
 {
 	OPCODE_INTERPRETER_INIT(0x00, 0x0F, Opcode::Interpret_00_0F);
 	OPCODE_INTERPRETER_INIT(0x10, 0x1F, Opcode::Interpret_10_1F);

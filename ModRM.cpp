@@ -3,6 +3,52 @@
 #include "Instruction.h"
 #include "Opcode.h"
 
+ModRM::ModRM()
+	: mod(0)
+	, reg(0)
+	, rm(0)
+	, hasDisp8(false)
+	, hasDisp32(false)
+	, hasSIB(false)
+{
+}
+
+ModRM& ModRM::operator=(const BYTE& modrm)
+{
+    rm  = modrm & 0x7;
+    reg = (modrm >> 3) & 0x7;
+    mod = (modrm >> 6) & 0x3;
+
+    if (mod < 3 && rm == 4)
+        hasSIB = true;
+
+    switch (mod) {
+    case 0:
+        hasDisp8 = false;
+        hasDisp32 = false;
+        break;
+    case 1:
+        hasDisp8 = true;
+        hasDisp32 = false;
+        break;
+    case 2:
+        hasDisp8 = false;
+        hasDisp32 = true;
+        break;
+    case 3:
+        hasDisp8 = false;
+        hasDisp32 = false;
+        break;
+    }
+
+    if (mod == 0 && rm == 5) {
+        hasDisp8 = false;
+        hasDisp32 = true;
+    }
+
+    return *this;
+}
+
 void ModRM::Interpret_00_0F(BYTE modrm, Disassembler* d, Instruction* i)
 {
 

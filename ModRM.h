@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
 #include <map>
-#include "Instruction.h"
 
 class Disassembler;
 class Instruction;
@@ -9,6 +8,9 @@ class Instruction;
 class ModRM
 {
 public:
+	ModRM();
+	ModRM& operator=(const BYTE& modrm);
+
 	static void Interpret_00_0F(BYTE, Disassembler*, Instruction*);
 	static void Interpret_10_1F(BYTE, Disassembler*, Instruction*);
 	static void Interpret_20_2F(BYTE, Disassembler*, Instruction*);
@@ -25,4 +27,13 @@ public:
 	static void Interpret_D0_DF(BYTE, Disassembler*, Instruction*);
 	static void Interpret_E0_EF(BYTE, Disassembler*, Instruction*);
 	static void Interpret_F0_FF(BYTE, Disassembler*, Instruction*);
+
+private:
+	BYTE mod;
+	BYTE reg;
+	BYTE rm;
+
+	bool hasDisp8;
+	bool hasDisp32;
+	bool hasSIB;
 };

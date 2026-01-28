@@ -8,39 +8,10 @@ void Opcode::Interpret_00_0F(DWORD opcode, Disassembler* d, Instruction* i)
 	case 0x00:
 		i->m_Mnemonic = MNEMONIC::ADD;
 		break;
-	case 0x01:
-		break;
-	case 0x02:
-		break;
 	case 0x03:
-		break;
-	case 0x04:
-		break;
-	case 0x05:
-		break;
-	case 0x06:
-		break;
-	case 0x07:
-		break;
-	case 0x08:
-		break;
-	case 0x09:
-		break;
-	case 0x0A:
-		break;
-	case 0x0B:
-		break;
-	case 0x0C:
-		break;
-	case 0x0D:
-		break;
-	case 0x0E:
-		break;
-	case 0x0F:
+		i->m_Rex = 0x48;
 		break;
 	}
-	d->m_Parse.set(INSTRUCTION::MODRM, true);
-	d->m_nBytes = 1;
 }
 
 void Opcode::Interpret_10_1F(DWORD opcode, Disassembler* d, Instruction* i)
@@ -48,52 +19,50 @@ void Opcode::Interpret_10_1F(DWORD opcode, Disassembler* d, Instruction* i)
 	switch (opcode) {
 	case 0x10:
 		break;
-	case 0x11:
-		break;
-	case 0x12:
-		break;
-	case 0x13:
-		break;
-	case 0x14:
-		break;
-	case 0x15:
-		break;
-	case 0x16:
-		break;
-	case 0x17:
-		break;
-	case 0x18:
-		break;
-	case 0x19:
-		break;
-	case 0x1A:
-		break;
-	case 0x1B:
-		break;
-	case 0x1C:
-		break;
-	case 0x1D:
-		break;
-	case 0x1E:
-		break;
-	case 0x1F:
-		break;
 	}
 }
 
 void Opcode::Interpret_20_2F(DWORD opcode, Disassembler* d, Instruction* i)
 {
-
+	switch (opcode) {
+	case 0x26:
+		if (d->Is64Bit())
+			break;
+		i->m_SegOverride = SEGMENT::ES;
+		break;
+	case 0x2E:
+		if (d->Is64Bit())
+			break;
+		i->m_SegOverride = SEGMENT::CS;
+		break;
+	}
 }
 
 void Opcode::Interpret_30_3F(DWORD opcode, Disassembler* d, Instruction* i)
 {
-
+	switch (opcode) {
+	case 0x36:
+		if (d->Is64Bit())
+			break;
+		i->m_SegOverride = SEGMENT::SS;
+		break;
+	case 0x3E:
+		if (d->Is64Bit())
+			break;
+		i->m_SegOverride = SEGMENT::DS;
+		break;
+	}
 }
 
 void Opcode::Interpret_40_4F(DWORD opcode, Disassembler* d, Instruction* i)
 {
-
+	if (d->Is64Bit()) {
+		i->m_Rex = opcode; return;
+	}
+	switch (opcode) {
+	case 0x40:
+		break;
+	}
 }
 
 void Opcode::Interpret_50_5F(DWORD opcode, Disassembler* d, Instruction* i)
@@ -103,7 +72,20 @@ void Opcode::Interpret_50_5F(DWORD opcode, Disassembler* d, Instruction* i)
 
 void Opcode::Interpret_60_6F(DWORD opcode, Disassembler* d, Instruction* i)
 {
-
+	switch (opcode) {
+	case 0x64:
+		i->m_SegOverride = SEGMENT::FS;
+		break;
+	case 0x65:
+		i->m_SegOverride = SEGMENT::GS;
+		break;
+	case 0x66:
+		i->m_pfx66 = true;
+		break;
+	case 0x67:
+		i->m_pfx67 = true;
+		break;
+	}
 }
 
 void Opcode::Interpret_70_7F(DWORD opcode, Disassembler* d, Instruction* i)
@@ -148,5 +130,15 @@ void Opcode::Interpret_E0_EF(DWORD opcode, Disassembler* d, Instruction* i)
 
 void Opcode::Interpret_F0_FF(DWORD opcode, Disassembler* d, Instruction* i)
 {
-
+	switch (opcode) {
+	case 0xF0:
+		i->m_pfxF0 = true;
+		break;
+	case 0xF2:
+		i->m_pfxF2 = true;
+		break;
+	case 0xF3:
+		i->m_pfxF3 = true;
+		break;
+	}
 }

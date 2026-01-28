@@ -1,61 +1,51 @@
 #include "Instruction.h"
 
-#define MNEMONIC_ADD_KEY_VALUE(k, v) m_MnemonicMap[k] = v
-#define OPERAND_ADD_KEY_VALUE(k, v) m_OperandMap[k] = v
+bool Instruction::IsPrefix(BYTE b)
+{
+	bool legacy = (b == 0x26)	// SEG=ES (in 64-bit, ignored)
+		|| (b == 0x2E)			// SEG=CS (in 64-bit, ignored)
+		|| (b == 0x36)			// SEG=SS (in 64-bit, ignored)
+		|| (b == 0x3E)			// SEG=DS (in 64-bit, ignored)
+		|| (b == 0x64)			// SEG=FS
+		|| (b == 0x65)			// SEG=GS
+		|| (b == 0x66)			// operand size
+		|| (b == 0x67)			// address size
+		|| (b == 0xF0)			// LOCK
+		|| (b == 0xF2)			// REPNE XACQUIRE
+		|| (b == 0xF3);			// REP/REPE XRELEASE
+
+	bool rex = (b == 0x40)		// REX
+		|| (b == 0x41)			// REX.B
+		|| (b == 0x42)			// REX.X
+		|| (b == 0x43)			// REX.XB
+		|| (b == 0x44)			// REX.R
+		|| (b == 0x45)			// REX.RB
+		|| (b == 0x46)			// REX.RX
+		|| (b == 0x47)			// REX.RXB
+		|| (b == 0x48)			// REX.W
+		|| (b == 0x49)			// REX.WB
+		|| (b == 0x4A)			// REX.WX
+		|| (b == 0x4B)			// REX.WXB
+		|| (b == 0x4C)			// REX.WR
+		|| (b == 0x4D)			// REX.WRB
+		|| (b == 0x4E)			// REX.WRX
+		|| (b == 0x4F);			// REX.WRXB
+
+	return legacy || rex;
+}
 
 Instruction::Instruction()
-	: m_cPrefix(0)
-	, m_dwOpcode(0)
-	, m_cModRM(0)
-	, m_cSIB(0)
-	, m_Mnemonic(MNEMONIC::NON)
-	, m_Operand1(REGISTER::NON)
-	, m_Operand2(REGISTER::NON)
-	, m_bIsDisplacementValid(FALSE)
-	, m_dwDisplacement(0)
-	, m_bIsImmediateValid(FALSE)
-	, m_dwImmediate(0)
-	, m_dwSize(0)
+	: m_Prefix(0)
+	, m_Opcode(0)
+	, m_pfx66(false)
+	, m_pfx67(false)
+	, m_pfxF0(false)
+	, m_pfxF2(false)
+	, m_pfxF3(false)
+	, m_SegOverride(SEGMENT::NONE)
+	, m_Mnemonic(MNEMONIC::NONE)
+	, m_Displacement(0)
+	, m_Immediate(0)
+	, m_Size(0)
 {
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::MOV, "MOV");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::ADD, "ADD");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::SUB, "SUB");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::INC, "INC");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::DEC, "DEC");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::XOR, "XOR");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::CMP, "CMP");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::JMP, "JMP");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::JNE, "JNE");
-	MNEMONIC_ADD_KEY_VALUE(MNEMONIC::TST, "TEST");
-
-	OPERAND_ADD_KEY_VALUE(REGISTER::AL, "AL");
-	OPERAND_ADD_KEY_VALUE(REGISTER::AH, "AH");
-	OPERAND_ADD_KEY_VALUE(REGISTER::BL, "BL");
-	OPERAND_ADD_KEY_VALUE(REGISTER::BH, "BH");
-	OPERAND_ADD_KEY_VALUE(REGISTER::CL, "CL");
-	OPERAND_ADD_KEY_VALUE(REGISTER::CH, "CH");
-	OPERAND_ADD_KEY_VALUE(REGISTER::DL, "DL");
-	OPERAND_ADD_KEY_VALUE(REGISTER::DH, "DH");
-	OPERAND_ADD_KEY_VALUE(REGISTER::AX, "AX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::BX, "BX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::CX, "CX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::DX, "DX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::SI, "SI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::DI, "DI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::EAX, "EAX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::EBX, "EBX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::ECX, "ECX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::EDX, "EDX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::ESI, "ESI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::EDI, "EDI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::EBP, "EBP");
-	OPERAND_ADD_KEY_VALUE(REGISTER::ESP, "ESP");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RAX, "RAX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RBX, "RBX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RCX, "RCX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RDX, "RDX");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RSI, "RSI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RDI, "RDI");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RBP, "RBP");
-	OPERAND_ADD_KEY_VALUE(REGISTER::RSP, "RSP");
 }
